@@ -1,5 +1,7 @@
 package StudentEnrolment;
 
+import java.util.Objects;
+
 public class Course {
     private String id;
     private String name;
@@ -20,4 +22,17 @@ public class Course {
     public String getId() {return id;}
     public String getName() {return name;}
     public String getCreditNum() {return creditNum;}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Course course = (Course) o;
+        return Objects.equals(id, course.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
