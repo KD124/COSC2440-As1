@@ -77,5 +77,52 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
         return null;
     }
 
+    public void homeScreen_UI(){
+        Scanner scanner = new Scanner(System.in);
+        String state;
+        System.out.println("***** HOMESCREEN ******");
+        System.out.println("1. Enroll a student for 1 semester");
+        System.out.println("2. Update an enrolment of a student for 1 semester");
+        System.out.println("3. Print all courses for 1 student in 1 semester");
+        System.out.println("4. Print all students of 1 course in 1 semester");
+        System.out.println("5. Prints all courses offered in 1 semester");
+        System.out.println("0. Exit the program\n");
+        System.out.print("Please choose an option: ");
+        state = scanner.nextLine();
+        if(!validateInput(state)){
+            System.out.println("\nInvalid choice. Please select an available option!!!");
+            pauseScreen();
+            clearScreen();
+            homeScreen_UI();
+            return;
+        }else{
+            homeScreen_Operation(Integer.parseInt(state));
+        }
+    }
+
+    public void homeScreen_Operation(int state){
+        switch (state){
+            default:
+                System.out.println("\nInvalid choice. Please select an available option!!!");
+                pauseScreen();
+                clearScreen();
+                homeScreen_UI();
+                return;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+            case 0:
+                System.exit(0);
+                break;
+        }
+    }
+
 
 }
