@@ -124,5 +124,89 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
         }
     }
 
+    public void enroll_UI(){
+        Scanner scanner = new Scanner(System.in);
+        String[] availableSems = new String[this.availableSems.size()];
+        this.availableSems.toArray(availableSems);
+        Course[] availableCourses = new Course[this.availableCourses.size()];
+        this.availableCourses.toArray(availableCourses);
+        String input;
+        int state;
 
+        System.out.println("***** ENROLL A STUDENT FOR 1 SEMESTER ******");
+        //Student id:
+        Student stu;
+        System.out.println("Enter student's id: ");
+        input = scanner.nextLine();
+        stu = searchStudentById(input);
+        if(stu == null){
+            System.out.println("\nStudent's id not found!");
+            pauseScreen();
+            clearScreen();
+            homeScreen_UI();
+        }else {
+            System.out.println("\nStudent's id found!");
+            System.out.println("Id: " + stu.getId() + "\tName: " + stu.getName() + "\n");
+            //Semester:
+            String sem;
+            System.out.println("Choose a semester to enroll:");
+            for (int i = 0; i < availableSems.length; i++){
+                System.out.println("\t" + (i+1) + ". " + availableSems[i]);
+            }
+            System.out.println("\t0. Back to home screen");
+            System.out.println("Please choose an option: ");
+            input = scanner.nextLine();
+            while(!validateInput(input)){
+                System.out.println("Invalid choice. Please enter an available option: ");
+                input = scanner.nextLine();
+            }
+            state = Integer.parseInt(input);
+            while(state > availableSems.length){
+                System.out.println("Invalid choice. Please enter an available option: ");
+                input = scanner.nextLine();
+                if(validateInput(input)) {
+                    state = Integer.parseInt(input);
+                }
+            }
+            switch (state){
+                case 0:
+                    homeScreen_UI();
+                    return;
+                default:
+                    sem = availableSems[state-1];
+                    break;
+            }
+            //Course
+            Course course;
+            System.out.println("\nAvailable courses:");
+            for (int i = 0; i < availableCourses.length; i++){
+                System.out.println("\t" + (i+1) + ". " + availableCourses[i].getName());
+            }
+            System.out.println("\t0. Back to home screen");
+            System.out.println("Please choose an option: ");
+            input = scanner.nextLine();
+            while(!validateInput(input)){
+                System.out.println("Invalid choice. Please enter an available option: ");
+                input = scanner.nextLine();
+            }
+            state = Integer.parseInt(input);
+            while(state > availableCourses.length){
+                System.out.println("Invalid choice. Please enter an available option: ");
+                input = scanner.nextLine();
+                if(validateInput(input)) {
+                    state = Integer.parseInt(input);
+                }
+            }
+            switch (state){
+                case 0:
+                    homeScreen_UI();
+                    return;
+                default:
+                    course = availableCourses[state-1];
+                    break;
+            }
+            //Update all changes to the list
+            add(new StudentEnrolment(stu,course,sem));
+        }
+    }
 }
