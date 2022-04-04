@@ -1,25 +1,37 @@
 package ManagementSystem;
 
 
-import StudentEnrolment.StudentEnrolment;
-import StudentEnrolment.Student;
-import StudentEnrolment.Course;
+import StudentEnrolment.*;
 
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
+import java.util.TreeSet;
 
 public class StudentEnrolmentList implements StudentEnrolmentManager {
-    ArrayList<StudentEnrolment> list;
-    HashSet<String> availableSems;      //this attribute is to keep track of available semesters from the enrolment list read from csv file
-    HashSet<Course> availableCourses;   //this attribute is to keep track of available courses from the enrolment list read from csv file
+    private ArrayList<StudentEnrolment> list;
+    private TreeSet<String> availableSems;      //this attribute is to keep track of available semesters from the enrolment list read from csv file
+    private HashSet<Course> availableCourses;   //this attribute is to keep track of available courses from the enrolment list read from csv file
 
     public StudentEnrolmentList() {
         list = new ArrayList<>();
-        availableSems = new HashSet<>();
+        availableSems = new TreeSet<>();
         availableCourses = new HashSet<>();
     }
 
+    public ArrayList<StudentEnrolment> getList(){return list;}
+
+    public TreeSet<String> getAvailableSems() {
+        return availableSems;
+    }
+
+    public HashSet<Course> getAvailableCourses() {
+        return availableCourses;
+    }
 
     @Override
     public boolean add(StudentEnrolment enrolment) {
@@ -42,7 +54,7 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
     }
 
     @Override
-    public HashSet<Course> getAll(String sem) {       //get all courses available in 1 semester
+    public HashSet<Course> getAll(String sem) {       //get all courses offered in 1 semester
         HashSet<Course> courses = new HashSet<Course>();
         for (StudentEnrolment i : list){
             if(i.getSemester().equals(sem)) courses.add(i.getCourse());
@@ -62,6 +74,70 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
         scanner.nextLine();
     }
 
+    public void readData(){
+        String fileName = "default.csv";
+        try {
+            BufferedReader buf = new BufferedReader(new FileReader(fileName));
+            String line;
+            StudentEnrolment enrolment;
+            Student stu;
+            Course course;
+            while ((line = buf.readLine()) != null){
+                String[] data = line.split(",");
+                stu = new Student(data[0],data[1],data[2]);
+                course = new Course(data[3],data[4],data[5]);
+                //check if the student and course already exist or not
+                //if yes, point stu and course to the one that already exists
+                for(StudentEnrolment en : list){
+                    if(en.getStudent().equals(stu)){
+                        stu = en.getStudent();
+                        break;
+                    }
+                }
+                for (StudentEnrolment en:list){
+                    if(en.getCourse().equals(course)){
+                        course = en.getCourse();
+                        break;
+                    }
+                }
+                //update the course list for stu and student list for course
+                stu.getCourses().add(course);
+                course.getStudents().add(stu);
+                //add new enrolment to the enrolment list
+                enrolment = new StudentEnrolment(stu,course,data[6]);
+                list.add(enrolment);
+            }
+            buf.close();
+            //Set available courses and sems
+            for(StudentEnrolment i : list){
+                availableCourses.add(i.getCourse());
+                availableSems.add(i.getSemester());
+            }
+            //print out to test the read file method
+/*            for(int i =0;i<list.getList().size();i++){
+                System.out.print(list.getList().get(i).getStudent().getId() + "\t" + list.getList().get(i).getStudent().getName() + "\t");
+                System.out.print(list.getList().get(i).getStudent().getBirthday() + "\t" + list.getList().get(i).getCourse().getId() + "\t");
+                System.out.print(list.getList().get(i).getCourse().getName() + "\t" + list.getList().get(i).getCourse().getCreditNum() + "\t");
+                System.out.println(list.getList().get(i).getSemester());
+            }
+            System.out.println("\n");
+            System.out.print("Available Sems:\t");
+            for(String i : list.getAvailableSems()){
+                System.out.print(i + "\t");
+            }
+            System.out.println();
+            System.out.println("Available Courses: ");
+            for(Course i : list.getAvailableCourses()){
+                System.out.println("\t" + i.getName());
+            }*/
+
+        } catch (IOException e) {
+            System.out.println("File not found!!!");
+            pauseScreen();
+            System.exit(0);
+        }
+    }
+
     public boolean validateInput(String input){
         if(input.length() != 1) return false;
         for (char c : input.toCharArray()) {
@@ -72,7 +148,7 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
 
     public Student searchStudentById(String id){
         for(StudentEnrolment i : list){
-            if (i.getStudent().getId().equals(id)) return i.getStudent();
+            if (i.getStudent().getId().equals(id.toUpperCase())) return i.getStudent();
         }
         return null;
     }
@@ -80,7 +156,7 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
     public void homeScreen_UI(){
         Scanner scanner = new Scanner(System.in);
         String state;
-        System.out.println("***** HOMESCREEN ******");
+        System.out.println("***** HOME SCREEN ******");
         System.out.println("1. Enroll a student for 1 semester");
         System.out.println("2. Update an enrolment of a student for 1 semester");
         System.out.println("3. Print all courses for 1 student in 1 semester");
@@ -109,6 +185,8 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
                 homeScreen_UI();
                 return;
             case 1:
+                clearScreen();
+                enroll_UI();
                 break;
             case 2:
                 break;
@@ -119,6 +197,7 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
             case 5:
                 break;
             case 0:
+                clearScreen();
                 System.exit(0);
                 break;
         }
@@ -136,7 +215,7 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
         System.out.println("***** ENROLL A STUDENT FOR 1 SEMESTER ******");
         //Student id:
         Student stu;
-        System.out.println("Enter student's id: ");
+        System.out.print("Enter student's id: ");
         input = scanner.nextLine();
         stu = searchStudentById(input);
         if(stu == null){
@@ -154,15 +233,15 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
                 System.out.println("\t" + (i+1) + ". " + availableSems[i]);
             }
             System.out.println("\t0. Back to home screen");
-            System.out.println("Please choose an option: ");
+            System.out.print("Please choose an option: ");
             input = scanner.nextLine();
             while(!validateInput(input)){
-                System.out.println("Invalid choice. Please enter an available option: ");
+                System.out.print("Invalid choice. Please enter an available option: ");
                 input = scanner.nextLine();
             }
             state = Integer.parseInt(input);
             while(state > availableSems.length){
-                System.out.println("Invalid choice. Please enter an available option: ");
+                System.out.print("Invalid choice. Please enter an available option: ");
                 input = scanner.nextLine();
                 if(validateInput(input)) {
                     state = Integer.parseInt(input);
@@ -183,15 +262,15 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
                 System.out.println("\t" + (i+1) + ". " + availableCourses[i].getName());
             }
             System.out.println("\t0. Back to home screen");
-            System.out.println("Please choose an option: ");
+            System.out.print("Please choose a course to enroll: ");
             input = scanner.nextLine();
             while(!validateInput(input)){
-                System.out.println("Invalid choice. Please enter an available option: ");
+                System.out.print("Invalid choice. Please enter an available option: ");
                 input = scanner.nextLine();
             }
             state = Integer.parseInt(input);
             while(state > availableCourses.length){
-                System.out.println("Invalid choice. Please enter an available option: ");
+                System.out.print("Invalid choice. Please enter an available option: ");
                 input = scanner.nextLine();
                 if(validateInput(input)) {
                     state = Integer.parseInt(input);
@@ -205,8 +284,12 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
                     course = availableCourses[state-1];
                     break;
             }
-            //Update all changes to the list
+            //Update all changes to the enrolment list
             add(new StudentEnrolment(stu,course,sem));
+            System.out.println("\nSuccessfully add new enrolment!!!");
+            pauseScreen();
+            clearScreen();
+            homeScreen_UI();
         }
     }
 }
