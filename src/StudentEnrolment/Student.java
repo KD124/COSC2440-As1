@@ -40,4 +40,8 @@ public class Student {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    public String toString(){
+        return String.format("%-10s - %-35s %s",id , name, birthday);
+    }
 }
