@@ -101,8 +101,9 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
         scanner.nextLine();
     }
 
-    public void readData(){
-        String fileName = "default.csv";
+    public void readData(String file){
+
+        String fileName = file;
         try {
             BufferedReader buf = new BufferedReader(new FileReader(fileName));
             String line;
@@ -134,10 +135,12 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
                 availableCourses.add(i.getCourse());
                 availableSems.add(i.getSemester());
             }
+            //Send out a message to indicate the state to the user
+            System.out.println("\nData is successfully populated!!!");
         } catch (IOException e) {
-            System.out.println("File not found!!!");
-            pauseScreen();
-            System.exit(0);
+            System.out.println("\nFile not found!!!");
+            System.out.println("The program will automatically read the \"default.csv\" file that already exits in the project file!!!");
+            readData("default.csv");
         }
     }
 
