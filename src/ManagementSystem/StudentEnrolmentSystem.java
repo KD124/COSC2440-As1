@@ -113,17 +113,12 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
                 String[] data = line.split(",");
                 stu = new Student(data[0],data[1],data[2]);
                 course = new Course(data[3],data[4],data[5]);
-                //check if the student and course already exist or not
-                //if yes, point stu and course to the one that already exists
+                //check if the student already exists or not
+                //if yes, point stu to the one that already exists
+                //this functionality supports the work of tracking enrolled courses of a student
                 for(StudentEnrolment en : list){
                     if(en.getStudent().equals(stu)){
                         stu = en.getStudent();
-                        break;
-                    }
-                }
-                for (StudentEnrolment en:list){
-                    if(en.getCourse().equals(course)){
-                        course = en.getCourse();
                         break;
                     }
                 }
