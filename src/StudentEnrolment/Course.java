@@ -8,26 +8,22 @@ public class Course {
     private String id;
     private String name;
     private String creditNum;
-    private HashSet<Student> students;
 
     public Course(){
         id = null;
         name = null;
         creditNum = null;
-        students = new HashSet<>();
     }
 
     public Course(String id, String name, String creditNum) {
         this.id = id;
         this.name = name;
         this.creditNum = creditNum;
-        students = new HashSet<>();
     }
 
     public String getId() {return id;}
     public String getName() {return name;}
     public String getCreditNum() {return creditNum;}
-    public HashSet<Student> getStudents() {return students;}
 
     @Override
     public boolean equals(Object o) {

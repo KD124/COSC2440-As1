@@ -4,7 +4,6 @@ package ManagementSystem;
 import StudentEnrolment.*;
 
 
-import javax.sound.midi.Soundbank;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,12 +12,12 @@ import java.util.HashSet;
 import java.util.Scanner;
 import java.util.TreeSet;
 
-public class StudentEnrolmentList implements StudentEnrolmentManager {
+public class StudentEnrolmentSystem implements StudentEnrolmentManager {
     private ArrayList<StudentEnrolment> list;
     private TreeSet<String> availableSems;      //this attribute is to keep track of available semesters from the enrolment list read from csv file
     private HashSet<Course> availableCourses;   //this attribute is to keep track of available courses from the enrolment list read from csv file
 
-    public StudentEnrolmentList() {
+    public StudentEnrolmentSystem() {
         list = new ArrayList<>();
         availableSems = new TreeSet<>();
         availableCourses = new HashSet<>();
@@ -128,9 +127,8 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
                         break;
                     }
                 }
-                //update the course list for stu and student list for course
+                //update the enrolledCourse list for stu
                 stu.getCourses().add(course);
-                course.getStudents().add(stu);
                 //add new enrolment to the enrolment list
                 enrolment = new StudentEnrolment(stu,course,data[6]);
                 list.add(enrolment);
@@ -330,7 +328,7 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
                 return;
             }
 
-            //add the course to the courseList of the student and check whether student already enrolled this course
+            //add the course to the enrolledCourseList of the student and check whether student already enrolled this course
             if(!stu.getCourses().add(course)){
                 System.out.println("\nStudent already enrolled on this course!!!");
                 pauseScreen();
@@ -338,8 +336,6 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
                 homeScreen_UI();
                 return;
             }
-            //add student to the studentList of the course
-            course.getStudents().add(stu);
             //add new enrolment to the list
             add(new StudentEnrolment(stu,course,sem));
             System.out.println("\nSuccessfully add new enrolment!!!");
@@ -404,7 +400,6 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
                         homeScreen_UI();
                         return;
                     }
-                    course.getStudents().add(stu);
                     add(new StudentEnrolment(stu,course,sem));
                     System.out.println("\nSuccessfully add new course!!!");
                     System.out.println("New enrolment has been added as well!!!");
@@ -445,8 +440,8 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
                         default:
                             course = existCourse.get(state-1);
                     }
-                    //remove student from course and course from student
-                    if(stu.getCourses().remove(course) && course.getStudents().remove(stu)) {
+                    //remove this course from enrolled course list of the student
+                    if(stu.getCourses().remove(course)) {
                         //remove the student's enrolment on this course
                         delete(getOne(stu,course,sem));
                         System.out.println("Successfully delete course as well as enrolment!!!");
@@ -575,7 +570,7 @@ public class StudentEnrolmentList implements StudentEnrolmentManager {
             clearScreen();
             homeScreen_UI();
         }
-        System.out.println("\n\n***** All Courses in " + sem + ":");
+        System.out.println("\n\n***** All Courses offered in " + sem + ":");
         int i = 1;
         for (Course c : courses) {
             System.out.println("\t" + i + ". " + c);

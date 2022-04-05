@@ -8,7 +8,7 @@ public class Student {
     private String id;
     private String name;
     private String birthday;
-    private HashSet<Course> courses;
+    private HashSet<Course> courses;        //keep track of enrolled courses to handle the duplicate courses
 
     public Student(){
         id = null;
