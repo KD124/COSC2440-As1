@@ -1,7 +1,6 @@
 package StudentEnrolment;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+
 import java.util.Objects;
 
 public class Course {
