@@ -40,6 +40,7 @@ public class Student {
         return Objects.hash(id);
     }
 
+    @Override
     public String toString(){
         return String.format("%-10s - %-35s %s",id , name, birthday);
     }
