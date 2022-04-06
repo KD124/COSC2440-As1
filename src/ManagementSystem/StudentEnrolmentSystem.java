@@ -4,9 +4,7 @@ package ManagementSystem;
 import StudentEnrolment.*;
 
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -45,7 +43,6 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
 
     @Override
     public void update() {
-
     }
 
     @Override
@@ -101,9 +98,7 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
         scanner.nextLine();
     }
 
-    public void readData(String file){
-
-        String fileName = file;
+    public void readData(String fileName){
         try {
             BufferedReader buf = new BufferedReader(new FileReader(fileName));
             String line;
@@ -144,8 +139,8 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
         }
     }
 
-    public boolean isDigit(String input){
-        if(input.length() != 1) return false;
+    public boolean isNum(String input){
+        if(input == null || input.equals("")) return false;
         for (char c : input.toCharArray()) {
             if (!Character.isDigit(c)) return false;
         }
@@ -154,7 +149,7 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
 
     public int validateInput(String input, int availableOpt){
         Scanner scanner = new Scanner(System.in);
-        while(!isDigit(input)){ //check if input is from 0 to 9
+        while(!isNum(input)){ //check if input is a number
             System.out.print("Invalid choice. Please enter an available option: ");
             input = scanner.nextLine();
         }
@@ -162,7 +157,7 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
         while(state > availableOpt){ //check whether input larger than available options
             System.out.print("Invalid choice. Please enter an available option: ");
             input = scanner.nextLine();
-            if(isDigit(input)) {
+            if(isNum(input)) {
                 state = Integer.parseInt(input);
             }
         }
@@ -183,6 +178,13 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
         return null;
     }
 
+    public String askFileName(){
+        Scanner scanner = new Scanner(System.in);
+        clearScreen();
+        System.out.print("Enter a file name to populate data (this file should be included in project file): ");
+        return scanner.nextLine();
+    }
+
     public void homeScreen_UI(){
         Scanner scanner = new Scanner(System.in);
         String state;
@@ -195,7 +197,7 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
         System.out.println("0. Exit the program\n");
         System.out.print("Please choose an option: ");
         state = scanner.nextLine();
-        if(!isDigit(state)){
+        if(!isNum(state)){
             System.out.println("\nInvalid choice. Please select an available option!!!");
             pauseScreen();
             clearScreen();
@@ -485,10 +487,11 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
             //Print all courses
             courses = getAll(stu, sem);
             if(courses.size() < 1){
-                System.out.println("\nThere is no courses for" + stu.getName().toUpperCase() + " in " + sem + "!!!");
+                System.out.println("\nThere is no courses for " + stu.getName().toUpperCase() + " in " + sem + "!!!");
                 pauseScreen();
                 clearScreen();
                 homeScreen_UI();
+                return;
             }
             System.out.println("\n\n***** All courses for " + stu.getName().toUpperCase() + " in " + sem + ":");
             int i = 1;
@@ -496,9 +499,7 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
                 System.out.println("\t" + i + ". " + c.toString());
                 i++;
             }
-            pauseScreen();
-            clearScreen();
-            homeScreen_UI();
+            saveCourseReports_UI(courses,"Courses for " + stu.getName().toUpperCase() + " in " + sem + ".csv");
         }
     }
 
@@ -535,6 +536,7 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
                 pauseScreen();
                 clearScreen();
                 homeScreen_UI();
+                return;
             }
             System.out.println("\n\n***** All students for " + course.getName().toUpperCase() + " in " + sem + ":");
 
@@ -543,9 +545,7 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
                 System.out.println("\t" + i + ". " + s.toString());
                 i++;
             }
-            pauseScreen();
-            clearScreen();
-            homeScreen_UI();
+            saveStudentReports_UI(stu,"Students for " + course.getName().toUpperCase() + " in " + sem + ".csv");
         }
     }
 
@@ -567,14 +567,115 @@ public class StudentEnrolmentSystem implements StudentEnrolmentManager {
             pauseScreen();
             clearScreen();
             homeScreen_UI();
+            return;
         }
         System.out.println("\n\n***** All Courses offered in " + sem + ":");
         int i = 1;
         for (Course c : courses) {
             System.out.println("\t" + i + ". " + c);
+            i++;
         }
-        pauseScreen();
-        clearScreen();
-        homeScreen_UI();
+        saveCourseReports_UI(courses,"Courses offered in " + sem + ".csv");
+    }
+
+    public void saveCourseReports_UI(HashSet<Course> list, String fileName){
+        Scanner scanner = new Scanner(System.in);
+        String input;
+        int state;
+
+        System.out.println("\nYou want to save this report to file? ");
+        System.out.println("\t1. Yes");
+        System.out.println("\t2. No");
+        System.out.println("\t0. Back to home screen");
+        System.out.print("Choose an option: ");
+        input = scanner.nextLine();
+        state = validateInput(input, 2);
+        if (state == 1){
+            if(list.size() < 1){
+                System.out.println("\nThere is no content to save to file!!!");
+                pauseScreen();
+                clearScreen();
+                homeScreen_UI();
+                return;
+            }
+            try {
+                File file = new File(fileName);
+                PrintWriter writer = new PrintWriter(fileName);
+                //Create verify file
+                if (file.createNewFile()){
+                    System.out.println("\nFile \"" +  fileName + "\" created in project file!");
+                }else{
+                    System.out.println("\nFile \"" +  fileName + "\" already exists in project file!");
+                }
+                //Writing to file
+                for (Course course : list){
+                    writer.println(course.getId() + "," + course.getName() + "," + course.getCreditNum());
+                }
+                writer.close();
+                System.out.println("Successfully saving report to \"" + fileName + "\"!!!");
+                pauseScreen();
+                clearScreen();
+                homeScreen_UI();
+            }catch (IOException e){
+                System.out.println("\nError occurred when saving report");
+                pauseScreen();
+                clearScreen();
+                homeScreen_UI();
+            }
+        }else{
+            pauseScreen();
+            clearScreen();
+            homeScreen_UI();
+        }
+    }
+
+    public void saveStudentReports_UI(HashSet<Student> list, String fileName){
+        Scanner scanner = new Scanner(System.in);
+        String input;
+        int state;
+
+        System.out.println("\nYou want to save this report to file? ");
+        System.out.println("\t1. Yes");
+        System.out.println("\t2. No");
+        System.out.print("Choose an option: ");
+        input = scanner.nextLine();
+        state = validateInput(input, 2);
+        if (state == 1){
+            if(list.size() < 1){
+                System.out.println("\nThere is no content to save to file!!!");
+                pauseScreen();
+                clearScreen();
+                homeScreen_UI();
+                return;
+            }
+            try {
+                File file = new File(fileName);
+                PrintWriter writer = new PrintWriter(fileName);
+                //Create verify file
+                if (file.createNewFile()){
+                    System.out.println("\nFile \"" +  fileName + "\" created in project file!");
+                }else{
+                    System.out.println("\nFile \"" +  fileName + "\" already exists in project file!");
+                }
+                //Writing to file
+                for (Student stu : list){
+                    writer.println(stu.getId() + "," + stu.getName() + "," + stu.getBirthday());
+                }
+                writer.close();
+                System.out.println("Successfully saving report to \"" + fileName + "\"!!!");
+                pauseScreen();
+                clearScreen();
+                homeScreen_UI();
+            }catch (IOException e){
+                System.out.println("\nError occurred when saving report");
+                pauseScreen();
+                clearScreen();
+                homeScreen_UI();
+            }
+        }else{
+            pauseScreen();
+            clearScreen();
+            homeScreen_UI();
+        }
     }
 }
